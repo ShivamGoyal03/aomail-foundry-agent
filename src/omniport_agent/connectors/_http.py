@@ -11,7 +11,8 @@ Responsibilities:
 from __future__ import annotations
 
 import time
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 import httpx
 
@@ -24,7 +25,7 @@ from ..errors import (
     scrub,
 )
 
-__all__ = ["OAuth2TokenCache", "raise_for_status", "request_json", "new_client"]
+__all__ = ["OAuth2TokenCache", "new_client", "raise_for_status", "request_json"]
 
 
 def new_client(timeout: float) -> httpx.AsyncClient:

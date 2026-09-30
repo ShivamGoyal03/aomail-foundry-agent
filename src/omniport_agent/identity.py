@@ -11,16 +11,16 @@ principal.
 from __future__ import annotations
 
 import hmac
+from collections.abc import Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from hashlib import sha256
-from typing import Iterator
 
 from .config import Settings, get_settings
 from .errors import PermissionDeniedError
 
-__all__ = ["Principal", "current_principal", "use_principal", "resolve_principal", "sign_principal"]
+__all__ = ["Principal", "current_principal", "resolve_principal", "sign_principal", "use_principal"]
 
 
 @dataclass(frozen=True)

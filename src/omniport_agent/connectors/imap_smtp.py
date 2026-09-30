@@ -15,11 +15,10 @@ import asyncio
 import email
 import imaplib
 import smtplib
-import socket
 import ssl
+from collections.abc import Iterator
 from contextlib import contextmanager
 from email.message import Message as RawMessage
-from typing import Iterator
 
 from ..config import ImapCredentials
 from ..errors import (
@@ -107,8 +106,10 @@ class ImapConnector(EmailConnector):
             else:
                 connection = imaplib.IMAP4(creds.imap_host, creds.imap_port, timeout=self._timeout)
                 connection.starttls(ssl_context=ssl.create_default_context())
-        except (socket.timeout, TimeoutError):
-            raise ProviderTimeoutError("The IMAP server did not respond within the configured timeout.") from None
+        except TimeoutError:
+            raise ProviderTimeoutError(
+                "The IMAP server did not respond within the configured timeout."
+            ) from None
         except (OSError, ssl.SSLError, imaplib.IMAP4.error) as exc:
             raise ProviderError(f"Could not connect to the IMAP server: {type(exc).__name__}.") from None
 
@@ -170,7 +171,7 @@ class ImapConnector(EmailConnector):
             window = uids[offset : offset + limit]
             summaries = []
             for uid in window:
-                raw = self._fetch(connection, uid, "(BODY.PEEK[HEADER] FLAGS)")
+                raw = self._fetch(connection, uid.decode(), "(BODY.PEEK[HEADER] FLAGS)")
                 if raw is None:
                     continue
                 summaries.append(self._to_summary(uid.decode(), raw, folder))
@@ -192,7 +193,7 @@ class ImapConnector(EmailConnector):
         return offset
 
     @staticmethod
-    def _fetch(connection: imaplib.IMAP4, uid: bytes, parts: str) -> bytes | None:
+    def _fetch(connection: imaplib.IMAP4, uid: str, parts: str) -> bytes | None:
         status, payload = connection.fetch(uid, parts)
         if status != "OK" or not payload:
             return None
@@ -237,7 +238,7 @@ class ImapConnector(EmailConnector):
             raise ValidationError("An IMAP message id must be the numeric sequence id returned by a search.")
         folder = folder or self._credentials.default_folder
         with self._imap(folder) as connection:
-            raw = self._fetch(connection, message_id.encode(), "(RFC822)")
+            raw = self._fetch(connection, message_id, "(RFC822)")
         if raw is None:
             raise NotFoundError(f"IMAP message '{message_id}' was not found in folder '{folder}'.")
 
@@ -274,8 +275,10 @@ class ImapConnector(EmailConnector):
             if part.get_content_maintype() == "multipart":
                 continue
             filename = part.get_filename()
+            payload = part.get_payload(decode=True)
+            if not isinstance(payload, bytes):
+                continue
             if filename or part.get_content_disposition() == "attachment":
-                payload = part.get_payload(decode=True) or b""
                 attachments.append(
                     AttachmentInfo(
                         filename=filename or "attachment",
@@ -283,9 +286,6 @@ class ImapConnector(EmailConnector):
                         size_bytes=len(payload),
                     )
                 )
-                continue
-            payload = part.get_payload(decode=True)
-            if payload is None:
                 continue
             charset = part.get_content_charset() or "utf-8"
             try:
@@ -332,8 +332,10 @@ class ImapConnector(EmailConnector):
                     smtp.send_message(mime)
         except smtplib.SMTPAuthenticationError:
             raise AuthenticationError("The SMTP server rejected the stored credentials.") from None
-        except (socket.timeout, TimeoutError):
-            raise ProviderTimeoutError("The SMTP server did not respond within the configured timeout.") from None
+        except TimeoutError:
+            raise ProviderTimeoutError(
+                "The SMTP server did not respond within the configured timeout."
+            ) from None
         except (smtplib.SMTPException, OSError, ssl.SSLError) as exc:
             raise ProviderError(f"SMTP submission failed: {type(exc).__name__}.") from None
 

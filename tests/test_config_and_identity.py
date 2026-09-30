@@ -178,7 +178,8 @@ def test_tampered_signature_is_rejected() -> None:
 def test_scrub_removes_credential_shapes(raw: str) -> None:
     cleaned = scrub(raw)
     assert "[redacted]" in cleaned
-    for needle in ("ya29.abcdefghijklmnop", "0gLongRefreshTokenValue", "super-secret-value", "hunter2hunter2"):
+    leaked = ("ya29.abcdefghijklmnop", "0gLongRefreshTokenValue", "super-secret-value", "hunter2hunter2")
+    for needle in leaked:
         assert needle not in cleaned
 
 

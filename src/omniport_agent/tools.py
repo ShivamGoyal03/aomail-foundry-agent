@@ -16,7 +16,8 @@ from __future__ import annotations
 
 import functools
 import inspect
-from typing import Annotated, Any, Awaitable, Callable
+from collections.abc import Awaitable, Callable
+from typing import Annotated, Any
 
 from agent_framework import tool
 from pydantic import Field
@@ -165,7 +166,9 @@ class EmailToolset:
             try:
                 detail = await connector.get_message(message_id)
             except OmniPortAgentError as exc:
-                results.append({"message_id": message_id, "error": {"code": exc.code, "message": exc.message}})
+                results.append(
+                    {"message_id": message_id, "error": {"code": exc.code, "message": exc.message}}
+                )
                 continue
             results.append(
                 {

@@ -11,18 +11,19 @@ from __future__ import annotations
 import json
 import os
 from functools import lru_cache
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, ValidationError as _PydanticValidationError
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from pydantic import ValidationError as _PydanticValidationError
 
 from .errors import ConfigurationError
 from .models import Provider
 
 __all__ = [
-    "GmailCredentials",
-    "MicrosoftCredentials",
-    "ImapCredentials",
     "AccountConfig",
+    "GmailCredentials",
+    "ImapCredentials",
+    "MicrosoftCredentials",
     "Settings",
     "get_settings",
     "load_accounts",
@@ -45,7 +46,7 @@ class GmailCredentials(_Config):
     client_id: str
     client_secret: SecretStr
     refresh_token: SecretStr
-    token_uri: str = "https://oauth2.googleapis.com/token"
+    token_uri: str = "https://oauth2.googleapis.com/token"  # noqa: S105 - a URL, not a secret
     api_base_url: str = "https://gmail.googleapis.com/gmail/v1"
 
 
@@ -149,9 +150,9 @@ class Settings(_Config):
 _ENV_PREFIX = "OMNIPORT_"
 
 
-def _env_overrides() -> dict[str, object]:
+def _env_overrides() -> dict[str, Any]:
     fields = Settings.model_fields
-    values: dict[str, object] = {}
+    values: dict[str, Any] = {}
     for name in fields:
         raw = os.environ.get(_ENV_PREFIX + name.upper())
         if raw is not None and raw != "":

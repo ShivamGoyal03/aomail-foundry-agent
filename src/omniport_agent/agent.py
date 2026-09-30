@@ -16,7 +16,7 @@ from .config import Settings, get_settings
 from .errors import ConfigurationError
 from .tools import EmailToolset
 
-__all__ = ["INSTRUCTIONS", "build_chat_client", "build_agent"]
+__all__ = ["INSTRUCTIONS", "build_agent", "build_chat_client"]
 
 INSTRUCTIONS = """\
 You are OmniPort Email Agent, an assistant for the signed-in user's email across \

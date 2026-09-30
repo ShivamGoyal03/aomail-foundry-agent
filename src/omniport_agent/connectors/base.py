@@ -9,8 +9,8 @@ from ..models import (
     MessageDetail,
     MessagePage,
     OutgoingMessage,
-    ProviderCapabilities,
     Provider,
+    ProviderCapabilities,
     SearchCriteria,
     SendResult,
 )
@@ -70,7 +70,7 @@ class EmailConnector(abc.ABC):
         """Release network resources. Safe to call more than once."""
         return None
 
-    async def __aenter__(self) -> "EmailConnector":
+    async def __aenter__(self) -> EmailConnector:
         return self
 
     async def __aexit__(self, *exc_info: object) -> None:

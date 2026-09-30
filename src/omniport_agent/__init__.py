@@ -10,11 +10,11 @@ from __future__ import annotations
 __version__ = "0.1.0"
 
 __all__ = [
-    "__version__",
     "AccountRegistry",
     "DraftStore",
     "EmailToolset",
     "Principal",
+    "__version__",
     "build_agent",
     "create_server",
     "use_principal",

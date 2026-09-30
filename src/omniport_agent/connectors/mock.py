@@ -6,7 +6,7 @@ It is used by the tests and by ``OMNIPORT_ENABLE_MOCK_ACCOUNT=1`` local runs.
 from __future__ import annotations
 
 import itertools
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from ..errors import NotFoundError, ValidationError
 from ..models import (
@@ -28,7 +28,7 @@ _COUNTER = itertools.count(1000)
 
 
 def seed_messages(account_id: str) -> list[MessageDetail]:
-    base = datetime(2026, 1, 5, 9, 0, tzinfo=timezone.utc)
+    base = datetime(2026, 1, 5, 9, 0, tzinfo=UTC)
     samples = [
         (
             "m-1",
@@ -127,7 +127,9 @@ class MockConnector(EmailConnector):
         window = matches[offset : offset + limit]
         next_offset = offset + limit
         return MessagePage(
-            messages=tuple(MessageSummary(**m.model_dump(include=set(MessageSummary.model_fields))) for m in window),
+            messages=tuple(
+                MessageSummary(**m.model_dump(include=set(MessageSummary.model_fields))) for m in window
+            ),
             next_page_token=str(next_offset) if next_offset < len(matches) else None,
         )
 
@@ -152,7 +154,7 @@ class MockConnector(EmailConnector):
     async def reply_message(self, message_id: str, body_text: str, reply_all: bool = False) -> SendResult:
         original = await self.get_message(message_id)
         recipients = [original.sender] if original.sender else []
-        cc = ()
+        cc: tuple[EmailAddress, ...] = ()
         if reply_all:
             own = self.email.lower()
             recipients += [a for a in original.recipients if a.address.lower() != own]

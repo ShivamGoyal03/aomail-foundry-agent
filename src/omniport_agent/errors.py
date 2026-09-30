@@ -11,16 +11,16 @@ from __future__ import annotations
 import re
 
 __all__ = [
-    "OmniPortAgentError",
-    "ConfigurationError",
-    "AuthenticationError",
     "AccountNotFoundError",
-    "PermissionDeniedError",
+    "ApprovalRequiredError",
+    "AuthenticationError",
+    "ConfigurationError",
     "NotFoundError",
+    "OmniPortAgentError",
+    "PermissionDeniedError",
     "ProviderError",
     "ProviderTimeoutError",
     "ValidationError",
-    "ApprovalRequiredError",
     "scrub",
 ]
 

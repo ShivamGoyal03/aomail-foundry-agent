@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import base64
 import email
-from datetime import timezone
+from datetime import UTC
 
 import httpx
 import pytest
@@ -29,8 +29,8 @@ from omniport_agent.models import EmailAddress, OutgoingMessage, SearchCriteria
 
 GMAIL_CREDENTIALS = GmailCredentials(
     client_id="client-id",
-    client_secret="client-secret",  # noqa: S106
-    refresh_token="refresh-token",  # noqa: S106
+    client_secret="client-secret",
+    refresh_token="refresh-token",
 )
 
 _GMAIL_BODY = base64.urlsafe_b64encode(b"Hello from Gmail.\nRegards, Dana").decode().rstrip("=")
@@ -98,7 +98,7 @@ async def test_gmail_list_and_read_normalizes_payload() -> None:
     assert summary.is_read is False
     assert summary.has_attachments is True
     assert summary.received_at is not None
-    assert summary.received_at.astimezone(timezone.utc).hour == 9
+    assert summary.received_at.astimezone(UTC).hour == 9
 
     detail = await connector.get_message("g1")
     assert detail.body_text.startswith("Hello from Gmail.")
@@ -207,8 +207,8 @@ async def test_gmail_rejects_empty_message_id() -> None:
 MS_CREDENTIALS = MicrosoftCredentials(
     tenant_id="tenant",
     client_id="client-id",
-    client_secret="client-secret",  # noqa: S106
-    refresh_token="refresh-token",  # noqa: S106
+    client_secret="client-secret",
+    refresh_token="refresh-token",
 )
 
 _GRAPH_MESSAGE = {
@@ -283,7 +283,7 @@ async def test_graph_application_credentials_target_named_mailbox() -> None:
     credentials = MicrosoftCredentials(
         tenant_id="tenant",
         client_id="client-id",
-        client_secret="client-secret",  # noqa: S106
+        client_secret="client-secret",
         mailbox_upn="shared@contoso.com",
     )
     sent: list[httpx.Request] = []
@@ -437,7 +437,7 @@ async def test_imap_send_submits_over_smtp(monkeypatch: pytest.MonkeyPatch) -> N
             captured["host"] = host
             captured["port"] = port
 
-        def __enter__(self) -> "FakeSMTP":
+        def __enter__(self) -> FakeSMTP:
             return self
 
         def __exit__(self, *exc: object) -> None:

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import Any
 
 from .config import (
     AccountConfig,
@@ -20,12 +21,12 @@ from .config import (
     get_settings,
     load_accounts,
 )
-from .errors import AccountNotFoundError, ConfigurationError
 from .connectors.base import EmailConnector
 from .connectors.gmail import GmailConnector
 from .connectors.imap_smtp import ImapConnector
 from .connectors.microsoft import MicrosoftConnector
 from .connectors.mock import MockConnector
+from .errors import AccountNotFoundError, ConfigurationError
 from .identity import Principal
 
 __all__ = ["AccountRegistry", "build_connector", "default_registry"]
@@ -38,7 +39,7 @@ _MOCK_ACCOUNT_ID = "mock-inbox"
 def build_connector(account: AccountConfig, settings: Settings) -> EmailConnector:
     """Instantiate the connector implementing ``account``'s provider."""
     credentials = account.credentials
-    common = {
+    common: dict[str, Any] = {
         "display_name": account.display_name,
         "timeout": settings.request_timeout_seconds,
         "max_body_characters": settings.max_body_characters,
@@ -68,7 +69,7 @@ class AccountRegistry:
         self._connectors: dict[str, EmailConnector] = {}
 
     @classmethod
-    def from_environment(cls, settings: Settings | None = None) -> "AccountRegistry":
+    def from_environment(cls, settings: Settings | None = None) -> AccountRegistry:
         settings = settings or get_settings()
         accounts = list(load_accounts())
         if _should_enable_mock(accounts, settings):

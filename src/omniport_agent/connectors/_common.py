@@ -3,20 +3,20 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from email.message import EmailMessage
 from email.utils import getaddresses, parsedate_to_datetime
-from datetime import datetime
 
 from ..models import AttachmentInfo, EmailAddress, OutgoingMessage
 
 __all__ = [
-    "parse_addresses",
-    "parse_address",
     "build_mime",
-    "truncate_body",
     "html_to_text",
+    "parse_address",
+    "parse_addresses",
     "parse_date",
     "reply_subject",
+    "truncate_body",
 ]
 
 _TAG_RE = re.compile(r"(?s)<(script|style).*?</\1>|<[^>]+>")
@@ -100,7 +100,9 @@ def build_mime(
     return mime
 
 
-def attachment_from_part(filename: str, mime_type: str | None, size: int | None, part_id: str | None) -> AttachmentInfo:
+def attachment_from_part(
+    filename: str, mime_type: str | None, size: int | None, part_id: str | None
+) -> AttachmentInfo:
     return AttachmentInfo(
         attachment_id=part_id,
         filename=filename,

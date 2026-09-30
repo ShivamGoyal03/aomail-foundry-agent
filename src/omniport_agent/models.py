@@ -12,17 +12,17 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 __all__ = [
-    "Provider",
-    "EmailAddress",
+    "AccountInfo",
     "AttachmentInfo",
-    "MessageSummary",
+    "EmailAddress",
     "MessageDetail",
     "MessagePage",
+    "MessageSummary",
     "OutgoingMessage",
-    "SendResult",
+    "Provider",
     "ProviderCapabilities",
-    "AccountInfo",
     "SearchCriteria",
+    "SendResult",
 ]
 
 Provider = Literal["gmail", "microsoft", "imap", "mock"]
